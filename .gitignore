@@ -1,0 +1,27 @@
+# Dependencies
+/node_modules
+/pnpm-lock.yaml
+
+# Build and Temp Directories
+/dist
+/.next
+/out
+
+# TurboRepo specific
+/.turbo
+
+# Log files
+*.log
+
+# IDE specific (IntelliJ, VS Code, etc.)
+.idea/
+.vscode/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Backend specific (apps/backend内にもnode_modulesがある場合)
+apps/*/node_modules
