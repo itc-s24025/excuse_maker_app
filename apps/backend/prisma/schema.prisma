@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid(7)) @db.VarChar(36)
+  email     String   @unique @db.VarChar(254)
+  nickname  String?  @db.VarChar(512)
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+  isDelete  Boolean  @default(false)
+
+  chat Chat[]
+  like Like[]
+}
+
+model Chat {
+  id        String   @id @default(uuid(7)) @db.VarChar(36)
+  userId    String   @db.VarChar(36) //FK
+  title     String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  isShared  Boolean  @default(false)
+  isDelete  Boolean  @default(false)
+
+  // リレーション
+  user User @relation(fields: [userId], references: [id])
+
+  excuse Excuse[]
+}
+
+model Excuse {
+  id         String   @id @default(uuid(7)) @db.VarChar(36)
+  chatId     String   @db.VarChar(36) //FK
+  situation  String   @db.Text
+  excuseText String   @db.Text
+  success    Boolean?
+  createdAt  DateTime @default(now())
+
+  // リレーション
+  chat Chat        @relation(fields: [chatId], references: [id])
+  tag  ExcuseTag[]
+  like Like[]
+}
+
+model Tag {
+  id        String   @id @default(uuid(7)) @db.VarChar(36)
+  title     String   @unique @db.VarChar(36)
+  createdAt DateTime @default(now())
+
+  // リレーション
+  excuse ExcuseTag[]
+}
+
+model ExcuseTag {
+  excuseId String @db.VarChar(36) //FK
+  tagId    String @db.VarChar(36) //FK
+
+  // リレーション
+  excuse Excuse @relation(fields: [excuseId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([excuseId, tagId]) //複合主キー
+}
+
+model Like {
+  id        String   @id @default(uuid(7)) @db.VarChar(36)
+  userId    String   @db.VarChar(36) //FK
+  excuseId  String   @db.VarChar(36) //FK
+  createdAt DateTime @default(now())
+  isDelete  Boolean  @default(false)
+
+  // リレーション
+  user   User   @relation(fields: [userId], references: [id])
+  excuse Excuse @relation(fields: [excuseId], references: [id])
+
+  @@unique([userId, excuseId])
+}
