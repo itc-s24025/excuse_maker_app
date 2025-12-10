@@ -5,8 +5,8 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
-import test from "./routes/test.ts";
-import { initializeGeminiTest } from "./initializers/gemini.ts";
+import test from "./routes/test.js";
+import { initializeGeminiTest } from "./initializers/gemini.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

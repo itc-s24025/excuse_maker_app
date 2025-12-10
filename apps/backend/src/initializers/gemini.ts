@@ -1,6 +1,6 @@
 // apps/backend/src/initializers/gemini.ts
 
-import { generateExcuse } from "../services/excuseGenerator.ts";
+import { generateExcuse } from "../services/excuseGenerator.js";
 
 /**
  * サーバー起動時にGemini APIのテストを実行する
