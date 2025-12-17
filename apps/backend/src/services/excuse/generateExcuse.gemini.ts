@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { getGeminiApiKey } from "../lib/geminiConfig.js";
+import { getGeminiApiKey } from "../../lib/geminiConfig.js";
 
 type ExcuseResult = {
     text: string;

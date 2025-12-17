@@ -8,11 +8,15 @@ const __dirname = path.dirname(__filename);
 
 
 import init from "./routes/gemini/initialization.js";
+import init_mock from "./routes/gemini/initialization.mock.js"
 import setup from "./routes/proxy/setupProxy.js";
 
 // .env 読み込み
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 process.env.DOTENV_LOADED = "true";
+
+console.log("ENABLE_GEMINI =", process.env.ENABLE_GEMINI);
+const useMock = process.env.ENABLE_GEMINI !== "true";
 
 
 const app = express();
@@ -22,8 +26,9 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use("/api", init);
+app.use("/api", useMock ? init_mock : init);
 app.use("/api", setup);
+
 
 // サーバーを起動してログをだす（待機状態にする）
 const port = process.env.PORT || '3001';
