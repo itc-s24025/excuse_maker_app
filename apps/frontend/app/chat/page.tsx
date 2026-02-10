@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import LogoutButton from "@/app/_components/GoogleLogoutButton";
+import LogoutButton from "@/app/_components/GoogleButton/logout";
+import { fetchUser } from "@/app/api/user";
 
 /*
   シンプルなチャット画面サンプル。
@@ -24,6 +25,7 @@ export default function ChatPage() {
   const [prompt, setPrompt] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [tags] = useState<string[]>(["遅刻", "学校", "仕事"]);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     // ダミーで既存の会話を読み込む
@@ -108,7 +110,20 @@ export default function ChatPage() {
     }
   };
 
-  return (
+  // ユーザー情報の読み込み
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const user = await fetchUser();
+                setUsername(user);
+            } catch (error) {
+                console.error("ユーザー取得失敗", error);
+            }
+        };
+        load();
+    }, []);
+
+    return (
     <div style={{ display: "flex", height: "100vh", gap: 12, padding: 12 }}>
       {/* 左サイドバー */}
       <aside style={{ width: 220, background: "#f3f3f3", padding: 12, borderRadius: 8 }}>
@@ -140,6 +155,13 @@ export default function ChatPage() {
       <main style={{ flex: 1, background: "#efefef", padding: 20, borderRadius: 8 }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ marginBottom: 12 }}>
+
+              <div style={{ marginBottom: 8, fontWeight: "bold" }}>
+                  <p>ようこそ ฅ^.⩊.^ฅ　
+                  {username ? `${username} さん` : "ユーザー"}
+                  </p>
+              </div>
+
             <h2>AIの回答</h2>
             {messages.filter(m => m.role === "ai").slice(-1).map(m => (
               <div key={m.id} style={{ padding: 20, background: "#fff", borderRadius: 16, fontSize: 20 }}>
