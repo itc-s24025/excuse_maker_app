@@ -30,7 +30,7 @@ app.use(express.json());
 app.use("/api", useMock ? init_mock : init);
 app.use("/api", setup);
 app.use("/api/test", testRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/user", authRouter);
 
 // チャット関連のルーティング
 app.use("/api/chats", chatsRouter);
