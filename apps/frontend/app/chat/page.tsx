@@ -1,9 +1,9 @@
-// TypeScript (tsx)
 "use client";
 
 import React, { useEffect, useState } from "react";
-import LogoutButton from "@/app/_components/GoogleButton/logout";
-import { fetchUser } from "@/app/api/user";
+import { useRouter } from "next/navigation";
+import { auth } from "@/app/lib/firebase";
+import { signOut } from "firebase/auth";
 
 /*
   シンプルなチャット画面サンプル。
@@ -16,6 +16,8 @@ type ChatSummary = { id: string; title: string };
 type Message = { id: string; role: "user" | "ai"; text: string };
 
 export default function ChatPage() {
+  const router = useRouter();
+
   const [chats, setChats] = useState<ChatSummary[]>([
     { id: "1", title: "履歴1" },
     { id: "2", title: "履歴2" },
@@ -86,10 +88,16 @@ export default function ChatPage() {
   };
 
   const createChat = async (title: string, situation: string, tags: string[]) => {
-    // POST /api/chats の呼び出し例
+    // POST backend API に絶対 URL で接続
     try {
       const token = localStorage.getItem("idToken") ?? "";
-      const res = await fetch("/api/chats", {
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!API_URL) {
+        alert("サーバーURL が未設定です");
+        return;
+      }
+      const url = `${API_URL}/chats`;
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +105,11 @@ export default function ChatPage() {
         },
         body: JSON.stringify({ title, situation, tags }),
       });
-      if (!res.ok) throw new Error("作成失敗");
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("createChat API error", res.status, text);
+        throw new Error("作成失敗");
+      }
       const data = await res.json();
       // 作成したチャットを一覧に追加して選択
       const newChat: ChatSummary = { id: data.chat?.id ?? String(Date.now()), title: data.chat?.title ?? title };
@@ -110,20 +122,7 @@ export default function ChatPage() {
     }
   };
 
-  // ユーザー情報の読み込み
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const user = await fetchUser();
-                setUsername(user);
-            } catch (error) {
-                console.error("ユーザー取得失敗", error);
-            }
-        };
-        load();
-    }, []);
-
-    return (
+  return (
     <div style={{ display: "flex", height: "100vh", gap: 12, padding: 12 }}>
       {/* 左サイドバー */}
       <aside style={{ width: 220, background: "#f3f3f3", padding: 12, borderRadius: 8 }}>
@@ -146,8 +145,16 @@ export default function ChatPage() {
           ))}
         </div>
         <div style={{ position: "absolute", bottom: 20 }}>
-          {/* ここを単純な localStorage 削除＋reload から Firebase signOut を行うコンポーネントに置換 */}
-          <LogoutButton />
+          <button onClick={async () => {
+            // ログアウト: Firebase セッションを切り、localStorage のトークンを削除して /login に遷移
+            try {
+              await signOut(auth);
+            } catch (e) {
+              console.warn("signOut failed:", e);
+            }
+            localStorage.removeItem("idToken");
+            router.replace("/login");
+          }}>ログアウト</button>
         </div>
       </aside>
 
